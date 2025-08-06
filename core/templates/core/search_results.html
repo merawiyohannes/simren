@@ -1,0 +1,24 @@
+{% load static %}
+{% if products %}
+<ul class="divide-y divide-purple-100">
+    {% for product in products %}
+        <li class="flex items-center p-2 hover:bg-purple-50 transition cursor-pointer">
+            <a href="{% url 'detail_view' product.id %}" class="flex items-center w-full">
+                <img src="{% if product.item_image1 %}{{ product.item_image1.url }}{% else %}{% static 'images/default.png' %}{% endif %}" 
+                     alt="{{ product.name }}"
+                     class="w-10 h-10 rounded-lg object-cover border border-purple-200 mr-3">
+                <div>
+                    <p class="text-purple-900 font-medium text-sm truncate">{{ product.name }}</p>
+                    <p class="text-purple-600 text-xs">{{ product.price }} ETB</p>
+                </div>
+            </a>
+        </li>
+    {% endfor %}
+</ul>
+{% else %}
+    {% if not input_value == '' %}
+        <p class="p-4 text-sm">No search results of
+            <span class=" text-red-500  italic ">{{ input_value }}</span> 
+        </p>
+    {% endif %}
+{% endif %}

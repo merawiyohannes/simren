@@ -1,0 +1,176 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% block title %} {{ item.name }} {% endblock %}
+
+{% block content %}
+{% csrf_token %}
+<div class="m-3 sm:m-5 grid grid-cols-1 md:grid-cols-3 gap-6">
+    
+    <!-- Image Section -->
+    <div class="flex flex-col md:flex-row gap-3 sm:gap-4">
+        <!-- Thumbnails -->
+        <div id="thumbnails" class="flex md:flex-col gap-2 sm:gap-3">
+            {% if item.item_image1 %}
+            <div onclick="showImage(1)" 
+                class="cursor-pointer border-2 border-purple-800 rounded-lg p-0.5 sm:p-1">
+                <img src="{{ item.item_image1.url }}" 
+                    alt="" class="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-md">
+            </div>
+            {% endif %}
+            
+            {% if item.item_image2 %}
+            <div onclick="showImage(2)" 
+                class="cursor-pointer border-2 border-transparent rounded-lg p-0.5 sm:p-1">
+                <img src="{{ item.item_image2.url }}" 
+                    alt="" class="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-md">
+            </div>
+            {% endif %}
+            
+            {% if item.item_image3 %}
+            <div onclick="showImage(3)" 
+                class="cursor-pointer border-2 border-transparent rounded-lg p-0.5 sm:p-1">
+                <img src="{{ item.item_image3.url }}" 
+                    alt="" class="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-md">
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Main Image -->
+        <div class="flex-1 h-64 sm:h-80 border rounded-lg overflow-hidden">
+            <img id="mainImage" src="{% if item.item_image1 %} {{ item.item_image1.url }} {% else %} {% static 'images/default.png' %} {% endif %}" 
+                alt="{{ item.name }}" class="w-full h-full object-cover">
+        </div>
+    </div>
+
+    <!-- Product Info -->
+    <div class="flex flex-col justify-between px-2 sm:px-4 py-2 space-y-3">
+        <div class="flex justify-between items-start">
+            <div class="flex flex-col space-y-2">
+                <h1 class="text-xl sm:text-2xl font-semibold text-purple-900">{{ item.name }}</h1>
+                <p class="text-lg text-purple-600 font-bold">{{ item.price }} ETB</p>
+                <p class="text-gray-700 text-sm sm:text-base">{{ item.description }}</p>
+                {% if request.user.is_superuser %}
+                <div class="flex gap-2 flex-wrap">
+                    <a href="{% url 'edit_view' item.id %}" class="px-3 py-0.5 bg-green-500 hover:bg-green-700 text-sm rounded text-white">Edit</a>
+                    <a href="{% url 'delete_view' item.id %}" class="px-3 py-0.5 bg-red-500 hover:bg-red-700 text-sm rounded text-white">Delete</a>
+                </div>
+                {% endif %}
+            </div>
+            <img id="full_btn" src="{% static 'images/zoom.png' %}" alt="zoom" class="bg-purple-200 hover:bg-purple-500 w-8 h-8 rounded-full cursor-pointer" title="View full screen">
+        </div>
+        <div class="flex items-center space-x-1 text-xs sm:text-sm text-gray-600">
+            <img src="{% static 'images/star.png' %}" alt="star" class="w-4 h-4 sm:w-5 sm:h-5">
+            {{ stars }} ({{ review }} Reviews)
+        </div>
+    </div>
+
+    <!-- Purchase Section -->
+    <div class="flex flex-col justify-center items-center space-y-3 border rounded-lg p-3">
+        <p class="text-base sm:text-lg font-medium text-purple-900">Quantity</p>
+        <p class="text-xs sm:text-sm text-purple-500">{{ item.quantity }} in stock</p>
+        <a href="{% url 'add_to_cart' item.id %}"></a>
+        <button 
+        id="addBtn"
+        hx-post="{% url 'add_to_cart' item.id %}"
+        hx-trigger="click"
+        hx-target="#cart_notify, #cart_action"
+        hx-swap="innerHTML"
+        hx-on="htmx:afterRequest:
+        this.innerText='✔️ Added';
+        this.classList.remove('bg-purple-800', 'hover:bg-purple-700');
+        this.classList.add('bg-green-700');
+        document.getElementById('cart_notify').classList.remove('hidden');"
+        class=" px-4 py-2 {% if item in added_items %} bg-green-700 {% else %} bg-purple-800 hover:bg-purple-700 {% endif %} text-white rounded-lg">
+            {% if item in added_items %} ✔️ Added {% else %} Add to cart {% endif %}
+        </button>
+        </a>
+    </div>
+</div>
+
+<!-- Full Screen Image -->
+<div id="full_image" class="hidden fixed inset-0 bg-black/80 flex flex-col">
+    <button onclick="cancelWindow()" 
+        class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center bg-purple-300 hover:bg-purple-500 rounded-full">
+        ✖
+    </button>
+    <div class="flex justify-center items-center w-full h-full">
+        <img id="img_src" src="" alt="" class="max-w-full max-h-full object-contain">
+    </div>
+</div>
+
+<!-- Reviews -->
+<div class="m-3 sm:m-5">
+    <p class="mb-3 text-lg font-semibold text-purple-950 underline">Reviews</p>
+    {% if reviews %}
+        {% for review in reviews %}
+            <div class="mb-2">
+                <h1 class="text-sm sm:text-lg text-purple-950">{{ review.name }}</h1>
+                <p class="text-xs sm:text-base text-gray-600">{{ review.message }}</p>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p class="text-red-500">Be the first one to Review</p>
+    {% endif %}
+</div>
+
+<!-- Related Items -->
+<div class="m-3 sm:m-5 border rounded-lg p-3">
+    <p class="mb-4 text-center text-lg font-semibold text-purple-800">Related Items under '{{ category }}'</p>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        {% for item in related_items %}
+        <a href="{% url 'detail_view' item.id %}">
+            <div class="bg-white rounded-lg shadow hover:shadow-lg border border-purple-100 hover:border-purple-200 transition overflow-hidden">
+                <img src="{% if item.item_image1 %} {{ item.item_image1.url }} {% else %} {% static 'images/default.png' %} {% endif %}" 
+                    alt="{{ item.name }}" class="w-full h-32 sm:h-40 object-cover">
+                <div class="p-2 sm:p-3">
+                    <p class="text-purple-950 font-medium text-sm sm:text-lg truncate">{{ item.name }}</p>
+                    <p class="text-purple-600 font-semibold text-xs sm:text-base">{{ item.price }} ETB</p>
+                    <div class="flex justify-between items-center mt-2">
+                        <p class="flex items-center text-xs sm:text-sm text-gray-600">
+                            <img src="{% static 'images/star.png' %}" alt="star" class="w-4 h-4 sm:w-5 sm:h-5 mr-1">
+                            {{ stars }} ({{ review }} Reviews)
+                        </p>
+                        <button class="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-purple-200 hover:bg-purple-500 text-white flex items-center justify-center">+</button>
+                    </div>
+                </div>
+            </div>
+        </a>
+        {% empty %}
+            <p class="col-span-4 text-center text-gray-500 italic">No Related Items.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    const fullBtn = document.getElementById('full_btn');
+    const fullFrame = document.getElementById("full_image");
+    const imgSrc = document.getElementById('img_src');
+    const mainImage = document.getElementById("mainImage");
+    const thumbs = document.querySelectorAll("#thumbnails div");
+    const imageSrcs = [
+        "{% if item.item_image1 %}{{ item.item_image1.url }}{% endif %}",
+        "{% if item.item_image2 %}{{ item.item_image2.url }}{% endif %}",
+        "{% if item.item_image3 %}{{ item.item_image3.url }}{% endif %}"
+    ];
+
+    function cancelWindow(){
+        fullFrame.classList.add('hidden');
+    }
+
+    function showImage(num) {
+        mainImage.src = imageSrcs[num - 1];
+        thumbs.forEach(t => {
+            t.classList.remove("border-purple-800");
+            t.classList.add("border-transparent");
+        });
+        thumbs[num - 1].classList.remove("border-transparent");
+        thumbs[num - 1].classList.add("border-purple-800");
+    }
+
+    fullBtn.addEventListener('click', function(){
+        imgSrc.src = mainImage.src;
+        fullFrame.classList.remove('hidden');
+    });
+</script>
+
+{% endblock %}

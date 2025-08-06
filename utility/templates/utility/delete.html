@@ -1,0 +1,28 @@
+{% extends 'core/base.html' %}
+{% block title %}Delete Item{% endblock %}
+
+{% block content %}
+<div class="flex items-start justify-center pt-8 pb-4 bg-purple-50 min-h-screen px-4 sm:items-center sm:pt-0">
+  <div class="w-full max-w-md bg-white rounded-lg shadow-md p-6 sm:p-8 mt-4 sm:mt-0 border border-red-500">
+    <h1 class="text-2xl font-bold text-center text-gray-800 mb-4">
+      Delete <span class="italic text-red-500">{{ item.name }}</span>?
+    </h1>
+    
+    <p class="text-center text-gray-600 mb-6">
+      This action cannot be undone. Are you sure?
+    </p>
+
+    <form method="POST" action="" class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+      {% csrf_token %}
+      <button type="submit" 
+              class="px-4 py-2 sm:px-6 sm:py-3 rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium transition-colors">
+        Confirm Delete
+      </button>
+      <a href="{% url 'detail_view' item.id %}" 
+         class="px-4 py-2 sm:px-6 sm:py-3 rounded-lg bg-green-500 hover:bg-green-600 text-white font-medium text-center transition-colors">
+        Cancel
+      </a>
+    </form>
+  </div>
+</div>
+{% endblock %}

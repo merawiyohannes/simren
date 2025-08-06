@@ -1,0 +1,66 @@
+{% extends 'core/base.html' %}
+{% block title %}Add Item{% endblock %}
+
+{% block content %}
+<div class="flex items-start justify-center pt-8 pb-4 bg-purple-50 min-h-screen px-4 sm:items-center sm:pt-0">
+  <div class="w-full max-w-md bg-purple-900 rounded-lg shadow-lg p-6 sm:p-8 mt-4 sm:mt-0 border border-yellow-400">
+    <h1 class="text-2xl font-bold text-yellow-300 text-center mb-6">New Item Form</h1>
+
+    <form method="POST" action="" enctype="multipart/form-data" class="space-y-4">
+      {% csrf_token %}
+      
+      <div>
+        <label for="category" class="block text-sm font-medium text-yellow-200 mb-1">Category</label>
+        {{ form.category }}
+      </div>
+
+      <div>
+        <label for="name" class="block text-sm font-medium text-yellow-200 mb-1">Name</label>
+        {{ form.name }}
+      </div>
+
+      <div>
+        <label for="description" class="block text-sm font-medium text-yellow-200 mb-1">Description</label>
+        {{ form.description }}
+      </div>
+
+      <div>
+        <label for="price" class="block text-sm font-medium text-yellow-200 mb-1">Price</label>
+        {{ form.price }}
+      </div>
+
+      <div>
+        <label for="quantity" class="block text-sm font-medium text-yellow-200 mb-1">Quantity</label>
+        {{ form.quantity }}
+      </div>
+
+      <div>
+        <label for="image1" class="block text-sm font-medium text-yellow-200 mb-1">Image 1</label>
+        {{ form.item_image1 }}
+      </div>
+
+      <div>
+        <label for="image2" class="block text-sm font-medium text-yellow-200 mb-1">Image 2</label>
+        {{ form.item_image2 }}
+      </div>
+
+      <div>
+        <label for="image3" class="block text-sm font-medium text-yellow-200 mb-1">Image 3</label>
+        {{ form.item_image3 }}
+      </div>
+
+      {% if form.non_field_errors %}
+        <div class="p-2 bg-yellow-100 text-purple-800 rounded text-sm">
+          {% for error in form.non_field_errors %}
+            {{ error }}
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <button type="submit" class="w-full py-2 bg-yellow-400 hover:bg-yellow-500 text-purple-900 font-medium rounded-lg mt-4 transition">
+        Create Item
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,79 @@
+{% extends 'core/base.html' %}
+{% block title %}Checkout{% endblock %}
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 m-6">
+
+    <!-- Quick Checkout -->
+    <div class="bg-gradient-to-br from-gray-50 to-gray-100 border border-gray-200 rounded-2xl shadow-lg p-6 flex flex-col space-y-6">
+        <h1 class="text-center text-3xl font-bold text-gray-800">Quick Checkout Receipt</h1>
+        <table class="w-full text-center border-separate">
+            <thead class="bg-gray-200 text-gray-700">
+                <tr>
+                    <th class="p-2">Items</th>
+                    <th class="p-2">Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in checkout_items %}
+                <tr class="{% cycle 'bg-white' 'bg-gray-50' %}">
+                    <td class="p-2 text-gray-700"># {{ entry.quantity }} x {{ entry.item.item.name }}</td>
+                    <td class="p-2 text-green-600 font-semibold">{{ entry.subtotal|floatformat:2 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td class="p-2 font-bold text-gray-700 bg-gray-100">Total</td>
+                    <td class="p-2 font-bold bg-green-500 text-white">{{ total|floatformat:2 }}</td>
+                </tr>
+            </tfoot>
+        </table>
+        <form method="POST">
+            {% csrf_token %}
+            <input name="quick_checkout" type="submit" value="Quick Checkout Payment" class="w-full px-3 py-2 rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-semibold">
+        </form>
+    </div>
+
+    <!-- Detail Checkout -->
+    <div class="bg-gradient-to-br from-gray-50 to-gray-100 border border-gray-200 rounded-2xl shadow-lg p-6 flex flex-col space-y-6">
+        <h1 class="text-center text-3xl font-bold text-gray-800">Detail Checkout (Optional)</h1>
+        <form method="POST" class="space-y-4">
+            {% csrf_token %}
+            <label for="name" class="block text-gray-700 text-lg font-semibold">Name</label>
+            {{ form.name }}
+            {% if form.name.errors %}
+            <div class="px-2 bg-red-50 text-red-600 text-sm animate-pulse">**{{ form.name.errors.0 }}</div>
+            {% endif %}
+
+            <label for="phone" class="block text-gray-700 text-lg font-semibold">Phone</label>
+            {{ form.phone }}
+            {% if form.phone.errors %}
+            <div class="px-2 bg-red-50 text-red-600 text-sm animate-pulse">**{{ form.phone.errors.0 }}</div>
+            {% endif %}
+
+            <label for="email" class="block text-gray-700 text-lg font-semibold">Email</label>
+            {{ form.email }}
+            {% if form.email.errors %}
+            <div class="px-2 bg-red-50 text-red-600 text-sm animate-pulse">**{{ form.email.errors.0 }}</div>
+            {% endif %}
+
+            {% if form.non_field_errors %}
+            <div class="px-2 bg-red-50 text-red-600 text-sm animate-pulse">
+                {% for error in form.non_field_errors %}
+                    **{{ error }}
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <input type="submit" value="Detail Checkout Payment" class="w-full px-3 py-2 rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-semibold">
+        </form>
+    </div>
+</div>
+
+<!-- Back to Shopping -->
+<div class="text-center mt-8">
+    <a href="{% url 'home_view' %}" class="px-5 py-2 rounded-xl bg-gray-700 hover:bg-gray-900 text-white font-semibold shadow">
+        Go Back to Shopping
+    </a>
+</div>
+{% endblock %}

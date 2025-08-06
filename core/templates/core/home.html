@@ -1,0 +1,138 @@
+{% extends "core/base.html" %}
+{% load static %}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+
+<!-- Hero Section -->
+<div class="relative rounded-xl overflow-hidden m-5 shadow max-w-full">
+  <div class="slide">
+    <img src="{% static 'images/promo.jpg' %}" class="w-full h-48 sm:h-64 md:h-80 object-cover">
+    <div class="absolute inset-0 bg-purple-900/40 flex flex-col justify-center p-4 sm:p-6 md:p-8">
+      <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-white">Summer Sale is Here!</h2>
+      <p class="mt-2 text-sm sm:text-base text-white">Up to 50% off on selected items.</p>
+    </div>
+  </div>
+
+  <div class="slide hidden">
+    <img src="{% static 'images/promo2.jpg' %}" class="w-full h-48 sm:h-64 md:h-80 object-cover">
+    <div class="absolute inset-0 bg-purple-900/40 flex flex-col justify-center p-4 sm:p-6 md:p-8">
+      <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-white">New Kids Clothes Coming Soon!</h2>
+      <p class="mt-2 text-sm sm:text-base text-white">Up to 50% off on selected items.</p>
+    </div>
+  </div>
+
+  <button onclick="prevSlide()" class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/40 px-2 rounded-full">&#10094;</button>
+  <button onclick="nextSlide()" class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/40 px-2 rounded-full">&#10095;</button>
+</div>
+
+<!-- Category Buttons -->
+<div class="m-5 flex flex-wrap gap-2 sm:gap-4 justify-center">
+  {% for category in categories %}
+    <button class="category-btn text-sm sm:text-base italic px-3 py-1 rounded-xl bg-purple-100 hover:bg-purple-300 transition"
+      data-category="{{ category.id }}">
+      {{ category.name }}
+    </button>
+  {% endfor %}
+</div>
+
+<!-- All Products -->
+<div id="all_product_list" class="w-full max-w-screen px-4">
+  <p class="mb-6 text-center text-lg font-semibold text-purple-800">All Products</p>
+  <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
+    {% for item in items %}
+      <div class="product-card bg-white rounded-xl shadow border hover:border-purple-200 transition-transform duration-300 ease-out h-full flex flex-col hover:-translate-y-1 hover:scale-105 hover:shadow-lg"
+           data-category="{{ item.category.id }}">
+        <a href="{% url 'detail_view' item.id %}">
+          <img src="{% if item.item_image1 %}{{ item.item_image1.url }}{% else %}{% static 'images/default.png' %}{% endif %}"
+               class="mx-auto rounded-xl">
+          <div class="p-3 flex-grow flex flex-col justify-between">
+            <div>
+              <p class="text-purple-950 font-medium text-sm sm:text-base truncate">{{ item.name }}</p>
+              <p class="text-purple-600 font-semibold mt-1">{{ item.price }} ETB</p>
+            </div>
+            <div class="flex justify-between items-center mt-2">
+              <p class="flex items-center text-xs sm:text-sm text-gray-600">
+                <img src="{% static 'images/star.png' %}" class="w-4 h-4 mr-1">
+                {{ stars }} ({{ review }} Reviews)
+              </p>
+        </a>
+              <button
+                hx-post="{% url 'add_to_cart' item.id %}"
+                hx-trigger="click"
+                hx-target="#cart_notify"
+                hx-swap="innerHTML"
+                hx-on="htmx:afterRequest:
+                  this.innerText='✔️';
+                  this.classList.remove('bg-purple-500', 'hover:bg-purple-700');
+                  this.classList.add('bg-green-700');
+                  document.getElementById('cart_notify').classList.remove('hidden');"
+                class="w-7 h-7 rounded-full {% if item in added_items %}bg-green-700{% else %}bg-purple-500 hover:bg-purple-700{% endif %} text-white"
+                title="{% if item in added_items %}Item is in cart{% else %}add-to-cart{% endif %}">
+                {% if item in added_items %}✔️{% else %}+{% endif %}
+              </button>
+            </div>
+          </div>
+      </div>
+    {% empty %}
+      <p class="col-span-4 text-center text-gray-500 italic">No items available.</p>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Filtered Products -->
+<div id="product_list" class="w-full max-w-screen px-4 hidden">
+  <div class="flex justify-between items-center mb-6">
+    <p id="category-title" class="text-lg font-semibold text-purple-800">Products</p>
+    <button id="back_btn" class="bg-purple-100 px-3 py-1 rounded hover:bg-purple-300">← Back</button>
+  </div>
+  <div id="category-items" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
+    <!-- JS Inject -->
+  </div>
+</div>
+
+<script>
+  let currentSlide = 0;
+  const slides = document.querySelectorAll('.slide');
+  const showSlide = i => slides.forEach((s, idx) => s.classList.toggle('hidden', idx !== i));
+  const nextSlide = () => showSlide(currentSlide = (currentSlide + 1) % slides.length);
+  const prevSlide = () => showSlide(currentSlide = (currentSlide - 1 + slides.length) % slides.length);
+  setInterval(nextSlide, 5000);
+
+  const allList = document.getElementById("all_product_list");
+  const productList = document.getElementById("product_list");
+  const categoryTitle = document.getElementById("category-title");
+  const categoryItems = document.getElementById("category-items");
+  const backBtn = document.getElementById("back_btn");
+  const products = [...document.querySelectorAll("#all_product_list .product-card")];
+
+  document.querySelectorAll(".category-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      allList.classList.add("hidden");
+      productList.classList.remove("hidden");
+
+      categoryTitle.textContent = `Products under ${btn.textContent}`;
+      categoryItems.innerHTML = "";
+
+      const matchedProducts = products.filter(p => p.dataset.category === btn.dataset.category);
+
+      if (matchedProducts.length > 0) {
+        matchedProducts.forEach(p => categoryItems.appendChild(p.cloneNode(true)));
+      } else {
+        // Inject styled "No items" message
+        const noItemsMsg = document.createElement("p");
+        noItemsMsg.className = "col-span-4 text-center text-gray-500 italic";
+        noItemsMsg.textContent = "No items available.";
+        categoryItems.appendChild(noItemsMsg);
+      }
+    });
+  });
+
+  backBtn.addEventListener("click", () => {
+    productList.classList.add("hidden");
+    allList.classList.remove("hidden");
+  });
+</script>
+
+{% endblock %}

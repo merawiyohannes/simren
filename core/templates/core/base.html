@@ -1,0 +1,284 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <title>{% block title %}{% endblock %} | Simren</title>
+</head>
+<body class="">
+    {% if request.path == "/" %}
+    <div class="border-b border-white bg-purple-700 py-6 md:py-12 text-center text-white px-4">
+        <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold">
+            Welcome to Simren Online Shopping
+        </h1>
+        <p class="text-base sm:text-lg mt-2 sm:mt-3">
+            Explore the latest styles in shoes, clothes, perfumes & more
+        </p>
+    </div>
+    {% endif %}
+
+        <nav class="flex flex-col sm:flex-row justify-between items-center bg-purple-700 px-4 sm:px-0">
+            <a href="{% url 'home_view' %}" class="w-full sm:w-auto">
+                <div class="bg-purple-700/20 backdrop-blur-sm p-3 sm:p-5 flex items-center justify-center space-x-2" title="Home Page">
+                    <img src="{% static 'images/logo.jpg' %}" alt="logo" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover">
+                    <p class="text-lg sm:text-xl italic text-white">Simren Online Shopping</p>
+                </div>
+            </a>
+
+            <div class="{% if request.path != '/' and not request.path|slice:':8' == '/detail/' %}hidden{% endif %} relative w-64">
+                <input 
+                    type="text" 
+                    name="q"
+                    placeholder="Search products..." 
+                    class="px-3 py-1 rounded-lg w-full border border-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-purple-900 placeholder-purple-400"
+                    hx-get="{% url 'search_products' %}" 
+                    hx-trigger="keyup changed delay:300ms" 
+                    hx-target="#search_results" 
+                    hx-swap="innerHTML"
+                    autocomplete="off"
+                >
+                <div id="search_results" 
+                    class="absolute top-full left-0 w-full bg-white rounded-lg shadow-lg mt-1 z-50 max-h-60 overflow-y-auto hidden border border-purple-200">
+                    {% include 'core/search_results.html' %}
+                </div>
+            </div>
+
+
+            <div class="sm:mr-7 space-x-3 flex justify-center items-center py-2 sm:py-0">
+                <div class="relative">
+                    <a href="{% url 'cart_view' %}" class="transform transition-transform duration-200 hover:-translate-y-0.5">
+                        <img src="{% static 'images/cart.png' %}" alt="cart" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full" title="Cart">
+                    </a>
+                    <span id="cart_notify" 
+                        hx-get="{% url 'cart_items_count' %}"
+                        hx-trigger="cartUpdated from:body"
+                        hx-swap="innerHTML"
+                        class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full px-1.5 py-0.5">
+                    </span>
+                </div>
+
+                <div class="relative">
+                    <a href="{% url 'dashboard_view' %}" class="transform transition-transform duration-200 hover:-translate-y-0.5">
+                        <img src="{% static 'images/bell.png' %}" alt="notification" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full" title="Notification">
+                    </a>
+                    <span id="bell_notify" 
+                        hx-get="{% url 'unseen_orders_view' %}"
+                        hx-trigger="load, every 2s"
+                        hx-swap="outerHTML"
+                        class="hiddenabsolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full px-1.5 py-0.5">
+                    </span>
+                </div>
+
+                {% if not request.user.is_authenticated %}
+                    <a href="{% url 'login_view' %}" class="transform transition-transform duration-200 hover:-translate-y-0.5">
+                        <img src="{% static 'images/user.png' %}" alt="account" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full" title="Account">
+                    </a>
+                {% endif %}
+
+                <div title="Menu Button" class="transform transition-transform duration-200 hover:-translate-y-0.5"> 
+                    <button id="menuBtn" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full">☰</button> 
+                </div>
+            </div>
+
+        <!-- popup menu -->
+        <div id="menu_lists" class="hidden fixed top-0 right-0 w-56 sm:w-64 h-screen bg-white z-50 shadow-lg border-r border-gray-200">
+            <ul class="flex flex-col divide-y divide-gray-300 text-gray-800">
+                <!-- Home -->
+                <li>
+                    <a href="{% url 'home_view' %}" class="flex items-center px-4 sm:px-6 py-3 sm:py-4 hover:bg-gray-200 transition">
+                        <svg class="w-5 h-5 mr-3 text-gray-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 9.75L12 3l9 6.75V20a1 1 0 01-1 1h-5.25a1 1 0 01-1-1v-4.5H9.25V20a1 1 0 01-1 1H3.75a1 1 0 01-1-1V9.75z"/>
+                        </svg>
+                        Home
+                    </a>
+                </li>
+
+                {% if request.user.is_authenticated %}
+                <!-- Dashboard -->
+                <li>
+                    <a href="#" class="flex items-center px-4 sm:px-6 py-3 sm:py-4 hover:bg-gray-200 transition">
+                        <svg class="w-5 h-5 mr-3 text-gray-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h7v7H3V3zm11 0h7v4h-7V3zM3 14h7v7H3v-7zm11 4h7v3h-7v-3z"/>
+                        </svg>
+                        Dashboard
+                    </a>
+                </li>
+                
+                <li>
+                    <a href="{% url 'change_password' %}" class="flex items-center px-4 sm:px-6 py-3 sm:py-4 hover:bg-gray-200 transition">
+                        <svg class="w-5 h-5 mr-3 text-gray-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m0-6a2 2 0 100 4 2 2 0 000-4zm0-7a5 5 0 00-5 5v2h10v-2a5 5 0 00-5-5z"/>
+                        </svg>
+                        Change Password
+                    </a>
+                </li>
+                {% endif %}
+
+                {% if request.user.is_superuser %}
+                <!-- Add Item -->
+                <li>
+                    <a href="{% url 'add_item_view' %}" class="flex items-center px-4 sm:px-6 py-3 sm:py-4 hover:bg-gray-200 transition">
+                        <svg class="w-5 h-5 mr-3 text-gray-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v8m-4-4h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z"/>
+                        </svg>
+                        Add Item
+                    </a>
+                </li>
+                {% endif %}
+
+                <!-- Logout -->
+                <li>
+                    <form method="POST" action="{% url 'logout_view' %}">{% csrf_token %}
+                        <button type="submit" class="flex items-center w-full text-left px-4 sm:px-6 py-3 sm:py-4 text-red-500 hover:bg-gray-200 transition">
+                            <svg class="w-5 h-5 mr-3 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1"/>
+                            </svg>
+                            Logout
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="px-2 sm:px-0">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <footer class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-0">
+        <div class="p-4 sm:p-7">
+            <p class="mb-2 text-lg sm:text-xl text-purple-950 font-bold">Join Us</p>
+            <ul class="space-y-2">
+                <a href="" class="block flex items-center space-x-2 transform transition-transform duration-200 hover:-translate-y-1">
+                    <img src="{% static 'images/tt.png' %}" alt="tt" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover">
+                    <p class="">TikTok</p>
+                </a>
+
+                <a href="" class="block flex items-center space-x-2 transform transition-transform duration-200 hover:-translate-y-1">
+                    <img src="{% static 'images/ig.jpg' %}" alt="ig" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover">
+                    <p class="">Instagram</p>
+                </a>
+
+                <a href="" class="block flex items-center space-x-2 transform transition-transform duration-200 hover:-translate-y-1">
+                    <img src="{% static 'images/fb.jpg' %}" alt="fb" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover">
+                    <p class="">FaceBook</p>
+                </a>
+
+                <a href="" class="block flex items-center space-x-2 transform transition-transform duration-200 hover:-translate-y-1">
+                    <img src="{% static 'images/tg.jpg' %}" alt="tg" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover">
+                    <p class="">Telegram</p>
+                </a>
+            </ul>
+        </div>
+
+        <div class="p-4 sm:p-7">
+            <p class="mb-2 text-lg sm:text-xl text-purple-950 font-bold">Quick Links</p>
+            <ul class="space-y-1">
+                <li><a href="{% url 'home_view' %}" class="hover:underline">Home</a></li>
+                <li><a href="#" class="hover:underline">Contact</a></li>
+                <li><a href="#" class="hover:underline">Shipping & Returns</a></li>
+                <li><a href="#" class="hover:underline">Privacy Policy</a></li>
+            </ul>
+        </div>
+
+        <div class="p-4 sm:p-7">
+            <p class="mb-2 text-lg sm:text-xl text-purple-950 font-bold">We Accept</p>
+            <div class="flex space-x-3 mb-4">
+                <img src="{% static 'images/visa.png' %}" class="w-10 sm:w-12">
+                <img src="{% static 'images/mastercard.png' %}" class="w-10 sm:w-12">
+                <img src="{% static 'images/paypal.png' %}" class="w-10 sm:w-12">
+            </div>
+
+            <div class="w-full max-w-lg mx-auto rounded-lg overflow-hidden shadow">  
+                <iframe
+                src="https://www.google.com/maps/embed?pb=!1m16!1m12!1m3!1d31523.1688326431!2d38.73786010576281!3d9.027583282680304!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!2m1!1saddis%20ababa%20bole%20map%20embed!5e0!3m2!1sen!2set!4v1753716136146!5m2!1sen!2set"
+                class="w-full h-48 sm:h-64 border-0"
+                allowfullscreen=""
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade">
+                </iframe>    
+            </div>
+            <p class="text-center mt-2">© 2025 Simren</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const menuBtn = document.getElementById('menuBtn');
+            const menu = document.getElementById('menu_lists');
+
+            menuBtn.addEventListener('click', function (e) {
+                menu.classList.toggle('hidden');
+                e.stopPropagation();
+            });
+
+            document.addEventListener('click', function (e) {
+                if (!menu.contains(e.target) && !menuBtn.contains(e.target)) {
+                    menu.classList.add('hidden');
+                }
+            });
+        });
+    </script>
+
+    <script>
+        document.body.addEventListener('htmx:configRequest', (event) => {
+            const token = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            event.detail.headers['X-CSRFToken'] = token;
+        });
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const badge = document.getElementById("cart_notify");
+
+            function updateCartBadge() {
+                fetch("{% url 'cart_items_count' %}")
+                    .then(res => res.text())
+                    .then(count => {
+                        if (parseInt(count) > 0) {
+                            badge.classList.remove("hidden");
+                            badge.textContent = count;
+                        } else {
+                            badge.classList.add("hidden");
+                        }
+                    })
+                    .catch(console.error);
+            }
+
+            setInterval(updateCartBadge, 2000);
+            updateCartBadge();
+            document.body.addEventListener("cartUpdated", updateCartBadge);
+        });
+    </script>
+
+    <script>
+        const searchInput = document.querySelector('input[name="q"]');
+        const resultsDiv = document.getElementById('search_results');
+
+        // Hide results div immediately when input is cleared
+        searchInput.addEventListener('input', () => {
+            if (searchInput.value.trim() === '') {
+                resultsDiv.classList.add('hidden');
+                resultsDiv.innerHTML = '';
+            }
+        });
+
+        // Show/hide results after HTMX swaps content
+        document.body.addEventListener('htmx:afterSwap', function(evt) {
+            if (evt.detail.target.id === 'search_results') {
+                if (evt.detail.target.innerHTML.trim() !== '') {
+                    resultsDiv.classList.remove('hidden');
+                } else {
+                    resultsDiv.classList.add('hidden');
+                }
+            }
+        });
+    </script>
+
+
+</body>
+</html>
