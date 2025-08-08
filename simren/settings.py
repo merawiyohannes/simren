@@ -27,7 +27,7 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 # Database
-if DEBUG:
+if not DEBUG:
     # Local: SQLite
     DATABASES = {
         'default': {
