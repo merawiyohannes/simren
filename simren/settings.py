@@ -1,10 +1,7 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
-import cloudinary
-import cloudinary.uploader
-import cloudinary.api
-from mongoengine import connect
+import dj_database_url  # <-- for PostgreSQL parsing
 
 load_dotenv()
 
@@ -29,7 +26,7 @@ CSRF_TRUSTED_ORIGINS = [
     'https://simren.onrender.com',
 ]
 
-# Switch DB based on environment
+# Database
 if DEBUG:
     # Local: SQLite
     DATABASES = {
@@ -39,8 +36,10 @@ if DEBUG:
         }
     }
 else:
-    # Production: MongoDB
-    connect(host=os.getenv('MONGO_URL'))
+    # Production: PostgreSQL (Render)
+    DATABASES = {
+        'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'))
+    }
 
 INSTALLED_APPS = [
     'django.contrib.admin',
