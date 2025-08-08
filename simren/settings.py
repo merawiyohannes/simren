@@ -24,7 +24,7 @@ DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
-ALLOWED_HOSTS = ["simren.onrender.com", '*']
+ALLOWED_HOSTS = ["simren.onrender.com"]
 CSRF_TRUSTED_ORIGINS = [
     'https://simren.onrender.com',
 ]
