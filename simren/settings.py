@@ -27,10 +27,19 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 # Database
-
-DATABASES = {
-    'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'))
-}
+if DEBUG:
+    # Local: SQLite
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
+else:
+    # Production: PostgreSQL (Render)
+    DATABASES = {
+        'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'))
+    }
 
 INSTALLED_APPS = [
     'django.contrib.admin',
