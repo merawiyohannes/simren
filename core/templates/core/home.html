@@ -29,18 +29,21 @@
 
 <!-- Category Buttons -->
 <div class="m-5 flex flex-wrap gap-2 sm:gap-4 justify-center">
+  {% if categories %}
   {% for category in categories %}
     <button class="category-btn text-sm sm:text-base italic px-3 py-1 rounded-xl bg-purple-100 hover:bg-purple-300 transition"
       data-category="{{ category.id }}">
       {{ category.name }}
     </button>
   {% endfor %}
+  {% endif %}
 </div>
 
 <!-- All Products -->
 <div id="all_product_list" class="w-full max-w-screen px-4">
   <p class="mb-6 text-center text-lg font-semibold text-purple-800">All Products</p>
   <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
+    {% if items %}
     {% for item in items %}
       <div class="product-card bg-white rounded-xl shadow border hover:border-purple-200 transition-transform duration-300 ease-out h-full flex flex-col hover:-translate-y-1 hover:scale-105 hover:shadow-lg"
            data-category="{{ item.category.id }}">
@@ -78,6 +81,7 @@
     {% empty %}
       <p class="col-span-4 text-center text-gray-500 italic">No items available.</p>
     {% endfor %}
+    {% endif %}
   </div>
 </div>
 
