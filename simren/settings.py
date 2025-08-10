@@ -11,12 +11,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY')
 CHAPA_SECRET_KEY = os.getenv('CHAPA_SECRET_KEY')
 
+CLOUDINARY_URL=os.getenv("CLOUDINARY_URL")
 # Cloudinary setup
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.getenv("CLOUD_NAME"),
-    'API_KEY': os.getenv("API_KEY"),
-    'API_SECRET': os.getenv("API_SECRET"),
-}
+# CLOUDINARY_STORAGE = {
+#     'CLOUD_NAME': os.getenv("CLOUD_NAME"),
+#     'API_KEY': os.getenv("API_KEY"),
+#     'API_SECRET': os.getenv("API_SECRET"),
+# }
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
