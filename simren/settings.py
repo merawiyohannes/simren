@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
-import dj_database_url  # <-- for PostgreSQL parsing
+import dj_database_url 
 
 load_dotenv()
 
@@ -84,8 +84,8 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static/']
 STATIC_ROOT = BASE_DIR / 'staticfiles/'
 
-MEDIA_URL = 'media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+# MEDIA_URL = 'media/'
+# MEDIA_ROOT = BASE_DIR / 'media'
 
 LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/"
