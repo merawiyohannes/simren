@@ -16,12 +16,6 @@ CLOUDINARY_STORAGE = {
     'CLOUD_NAME': os.getenv("CLOUD_NAME"),
     'API_KEY': os.getenv("API_KEY"),
     'API_SECRET': os.getenv("API_SECRET"),
-    'SECURE': True,
-    'DEFAULT_TAGS': ['django-upload'],
-    'UPLOAD_OPTIONS': {
-        'resource_type': 'image',
-        'type': 'upload'  # ensures it's public
-    }
 }
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
