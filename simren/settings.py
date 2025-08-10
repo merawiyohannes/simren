@@ -21,7 +21,7 @@ DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
-ALLOWED_HOSTS = ["simren.onrender.com"]
+ALLOWED_HOSTS = ["simren.onrender.com", '*']
 CSRF_TRUSTED_ORIGINS = [
     'https://simren.onrender.com',
 ]
@@ -84,8 +84,8 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static/']
 STATIC_ROOT = BASE_DIR / 'staticfiles/'
 
-# MEDIA_URL = 'media/'
-# MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = 'media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/"
