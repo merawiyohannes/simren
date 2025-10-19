@@ -18,17 +18,44 @@ CSRF_TRUSTED_ORIGINS = [
     'https://simren.onrender.com',
 ]
 
+# Re-enable these in settings.py
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.getenv("CLOUD_NAME"),
+    'API_KEY': os.getenv("API_KEY"), 
+    'API_SECRET': os.getenv("API_SECRET"),
+}
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
 # Database
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if os.getenv('USE_SUPABASE', 'False') == 'True':
+    # Production - Supabase PostgreSQL with Session Pooler
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.getenv('dbname'),
+            'USER': os.getenv('user'),
+            'PASSWORD': os.getenv('password'),
+            'HOST': os.getenv('host'),
+            'PORT': os.getenv('port'),
+            'OPTIONS': {
+                'sslmode': 'require',
+            },
+        }
     }
-}
+    print("✅ Using Supabase PostgreSQL with Session Pooler")
+else:
+    # Development - SQLite
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
+    print("✅ Using local SQLite database")
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
+     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -40,6 +67,8 @@ INSTALLED_APPS = [
     'authentication',
     'utility',
     'dashboard',
+    'cloudinary',
+    'cloudinary_storage',
 ]
 
 MIDDLEWARE = [
