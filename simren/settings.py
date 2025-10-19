@@ -11,15 +11,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY')
 CHAPA_SECRET_KEY = os.getenv('CHAPA_SECRET_KEY')
 
-CLOUDINARY_URL=os.getenv("CLOUDINARY_URL")
-# Cloudinary setup
-# CLOUDINARY_STORAGE = {
-#     'CLOUD_NAME': os.getenv("CLOUD_NAME"),
-#     'API_KEY': os.getenv("API_KEY"),
-#     'API_SECRET': os.getenv("API_SECRET"),
-# }
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
 ALLOWED_HOSTS = ["simren.onrender.com", '*']
@@ -30,8 +21,11 @@ CSRF_TRUSTED_ORIGINS = [
 # Database
 
 DATABASES = {
-        'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'))
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
+}
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -46,8 +40,6 @@ INSTALLED_APPS = [
     'authentication',
     'utility',
     'dashboard',
-    'cloudinary',
-    'cloudinary_storage',
 ]
 
 MIDDLEWARE = [
